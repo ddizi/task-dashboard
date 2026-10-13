@@ -70,6 +70,36 @@ const Admin = {
       });
     }
 
+    // Export Data button
+    const btnExport = document.getElementById('btn-export-data');
+    if (btnExport) {
+      btnExport.addEventListener('click', () => {
+        API.exportData();
+      });
+    }
+
+    // Import Data file input
+    const inputImport = document.getElementById('input-import-data');
+    if (inputImport) {
+      inputImport.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          try {
+            const parsed = JSON.parse(event.target.result);
+            await API.importData(parsed);
+            alert('설정 데이터가 성공적으로 복원되었습니다.');
+            this.closeAllModals();
+          } catch (err) {
+            alert('데이터 파일 형식이 올바르지 않습니다: ' + err.message);
+          }
+          inputImport.value = '';
+        };
+        reader.readAsText(file);
+      });
+    }
+
     // Color picker options
     document.querySelectorAll('.color-option').forEach(el => {
       el.addEventListener('click', (e) => {

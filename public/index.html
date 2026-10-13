@@ -148,6 +148,17 @@
               </button>
               <button type="submit" class="btn btn-primary">설정 저장</button>
             </div>
+
+            <div style="display:flex; gap:8px; margin-top:14px; padding-top:14px; border-top:1px dashed var(--border-color); align-items:center;">
+              <span style="font-size:0.8rem; color:var(--text-subtle); margin-right:auto;">데이터 관리:</span>
+              <button type="button" class="btn" id="btn-export-data" style="font-size:0.8rem; padding:6px 10px;">
+                📥 JSON 설정 백업 다운로드
+              </button>
+              <label class="btn" style="cursor:pointer; font-size:0.8rem; padding:6px 10px; margin-bottom:0;">
+                📤 JSON 백업 복원
+                <input type="file" id="input-import-data" accept=".json" style="display:none;">
+              </label>
+            </div>
           </form>
         </div>
       </div>

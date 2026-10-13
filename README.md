@@ -47,25 +47,37 @@
 
 ---
 
-## 🚀 빠른 시작 방법
+## 🌐 무료 웹 호스팅 (GitHub Pages 배포 방법)
 
-### 1) 서버 실행 (실시간 동기화 지원)
-프로젝트 폴더에서 아래 명령어로 서버를 구동합니다:
+이 프로젝트는 서버 없이 브라우저 자체(`localStorage`) 및 **GitHub Pages**를 통해 즉시 무료로 웹서비스가 가능하도록 제작되었습니다.
 
+### 📌 GitHub Pages 활성화 순서:
+1. 본인의 GitHub 레포지토리 페이지(`https://github.com/ddizi/task-dashboard`)로 이동합니다.
+2. 상단 메뉴에서 **[Settings]** 탭을 클릭합니다.
+3. 좌측 사이드바에서 **[Pages]** 메뉴를 선택합니다.
+4. **Build and deployment** 항목의:
+   - **Source**: `Deploy from a branch` 선택
+   - **Branch**: `main` 브랜치 선택, 폴더는 `/(root)` 선택
+5. **[Save]** 버튼을 클릭합니다.
+6. 약 1~2분 후 상단에 발급되는 주소(예: **`https://ddizi.github.io/task-dashboard/`**)로 어디서든 바로 접속할 수 있습니다!
+
+---
+
+## 🚀 로컬 실행 방법
+
+### 1) 브라우저로 바로 열기
+저장소 루트의 `index.html` 파일을 브라우저로 더블 클릭하여 바로 열어 사용할 수 있습니다.
+
+### 2) 로컬 Node.js 서버로 구동 (다중 기기 동기화 모드)
 ```bash
-cd /Users/ruroo/.gemini/antigravity/scratch/task-dday-board
 npm start
 # 또는 node server.js
 ```
-
-브라우저에서 접속:
-👉 **http://localhost:3000**
-
-### 2) 서버 없이 브라우저로 바로 열기
-Node 서버를 켜지 않고도 브라우저로 직접 파일을 열어 사용하실 수 있습니다:
-- Chrome이나 Safari에서 `task-dday-board/public/index.html` 파일을 더블 클릭하여 실행.
+👉 접속 주소: **http://localhost:3000**
 
 ---
 
 ## 🖥️ 상황판 모드 (대형 모니터 / TV 추천)
 상단 헤더의 **[🖥️ 상황판 모드]** 버튼을 클릭하거나 `F11`을 누르면, 브라우저 주소창과 여백이 사라지고 6개의 카드가 16:9 대형 디스플레이에 꽉 차는 Kiosk 풀스크린 상황판으로 전환됩니다.
+
+또한 Admin 설정 탭에서 **[📥 JSON 설정 백업 다운로드]** 및 **[📤 JSON 백업 복원]** 기능을 지원하여, 다른 기기나 모니터 브라우저로 데이터를 쉽게 옮길 수 있습니다.

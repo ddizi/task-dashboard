@@ -72,13 +72,24 @@ const DEFAULT_SAMPLE_DATA = {
   }
 };
 
+const isStaticHost = window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+
 const API = {
   data: JSON.parse(JSON.stringify(DEFAULT_SAMPLE_DATA)),
   listeners: [],
-  isOnline: true,
+  isOnline: !isStaticHost,
   eventSource: null,
 
   async init() {
+    // If running on GitHub Pages or file protocol, run pure client-side mode
+    if (isStaticHost) {
+      this.isOnline = false;
+      this.loadFromLocalCache();
+      this.setupStorageListener();
+      this.notify();
+      return this.data;
+    }
+
     try {
       const res = await fetch('/api/data');
       if (res.ok) {
@@ -90,14 +101,24 @@ const API = {
           this.setupSSE();
           this.notify();
           return this.data;
+        } else {
+          this.isOnline = false;
         }
+      } else {
+        this.isOnline = false;
       }
     } catch (e) {
-      console.warn('Backend server not reachable, using local fallback:', e);
       this.isOnline = false;
     }
 
     // Fallback to localStorage or default sample data
+    this.loadFromLocalCache();
+    this.setupStorageListener();
+    this.notify();
+    return this.data;
+  },
+
+  loadFromLocalCache() {
     const local = localStorage.getItem('task_dday_db');
     if (local) {
       try {
@@ -116,9 +137,56 @@ const API = {
       this.data = JSON.parse(JSON.stringify(DEFAULT_SAMPLE_DATA));
       this.saveToLocalCache();
     }
+  },
 
+  setupStorageListener() {
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'task_dday_db' && e.newValue) {
+        try {
+          this.data = JSON.parse(e.newValue);
+          this.notify();
+        } catch (err) {
+          console.error('Error syncing storage event:', err);
+        }
+      }
+    });
+  },
+
+  exportData() {
+    const jsonStr = JSON.stringify(this.data, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `계약서버개발실_상황판_설정백업_${today}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  async importData(imported) {
+    if (!imported || !Array.isArray(imported.tasks)) {
+      throw new Error('유효한 상황판 데이터 형식이 아닙니다.');
+    }
+    this.data = {
+      tasks: imported.tasks,
+      customHolidays: Array.isArray(imported.customHolidays) ? imported.customHolidays : [],
+      settings: imported.settings || DEFAULT_SAMPLE_DATA.settings
+    };
+    this.saveToLocalCache();
+    if (this.isOnline) {
+      try {
+        await fetch('/api/settings', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.data.settings)
+        });
+      } catch (e) {}
+    }
     this.notify();
-    return this.data;
+    return true;
   },
 
   setupSSE() {

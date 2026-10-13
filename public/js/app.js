@@ -41,10 +41,13 @@ const App = {
   updateOnlineBadge(isOnline) {
     const el = document.getElementById('live-indicator');
     if (!el) return;
-    if (isOnline) {
+    const isGH = window.location.hostname.includes('github.io');
+    if (isGH) {
+      el.innerHTML = `<span class="live-dot"></span><span>GITHUB PAGES</span>`;
+    } else if (isOnline) {
       el.innerHTML = `<span class="live-dot"></span><span>LIVE SYNC</span>`;
     } else {
-      el.innerHTML = `<span class="live-dot" style="background:#eab308; box-shadow:0 0 8px #eab308;"></span><span style="color:#eab308;">LOCAL MODE</span>`;
+      el.innerHTML = `<span class="live-dot"></span><span>LOCAL DB</span>`;
     }
   },
 
