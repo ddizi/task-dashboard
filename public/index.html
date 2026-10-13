@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>계약서버개발실 D-DAY 상황판</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <!-- Pretendard Web Font -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- TOP HEADER BAR -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo-badge">D</div>
+        <div class="header-titles">
+          <h1 id="board-title">계약서버개발실</h1>
+          <div class="subtitle">CONTRACT SERVER DEV OPERATIONS BOARD</div>
+        </div>
+      </div>
+
+      <!-- LIVE REAL-TIME CLOCK & WORKDAY BADGE -->
+      <div class="header-center">
+        <div class="live-indicator" id="live-indicator">
+          <span class="live-dot"></span>
+          <span>LIVE SYNC</span>
+        </div>
+        <div class="clock-display" id="live-clock">2026.10.13 (화) 00:00:00</div>
+        <div class="today-work-badge badge-workday" id="today-work-badge">영업일 (워킹데이)</div>
+      </div>
+
+      <!-- ACTIONS & CONTROLS -->
+      <div class="header-right">
+        <button class="btn" id="btn-fullscreen" title="모니터/대형화면 전체화면 모드">
+          🖥️ 상황판 모드
+        </button>
+        <button class="btn btn-primary" id="btn-quick-add">
+          ➕ TASK 등록
+        </button>
+        <button class="btn" id="btn-admin" title="태스크 순서 변경 및 관리">
+          ⚙️ Admin 관리
+        </button>
+        <button class="btn" id="btn-holidays" title="공휴일 및 사용자 지정 휴일 설정">
+          📅 휴일 관리
+        </button>
+        <button class="btn btn-icon-only" id="btn-toggle-theme" title="다크/라이트 테마">
+          ☀️ 라이트
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN 6-TASK SITUATION BOARD (3x2 GRID) -->
+    <main class="board-container">
+      <div class="tasks-grid" id="tasks-grid">
+        <!-- Dynamic Cards rendered by app.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- ADMIN & SETTINGS MODAL -->
+  <div class="modal-backdrop" id="admin-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>⚙️ Admin 관리 및 환경설정</h2>
+        <button class="modal-close-btn modal-close-trigger">&times;</button>
+      </div>
+      <div class="modal-tabs">
+        <button class="tab-btn active" data-tab="tasks">TASK 관리 및 순서</button>
+        <button class="tab-btn" data-tab="holidays">휴일 및 워킹데이</button>
+        <button class="tab-btn" data-tab="settings">근무시간 &amp; 상황판 설정</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- TAB 1: TASKS LIST & REORDER -->
+        <div class="tab-content" data-tab="tasks" style="display: block;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <p style="font-size:0.85rem; color:var(--text-muted);">
+              상황판에 노출되는 TASK 목록입니다. 화살표(▲/▼)로 6개 슬롯의 표시 순서를 변경할 수 있습니다.
+            </p>
+            <button class="btn btn-primary" onclick="Admin.openTaskEditModal(null)">+ 새 TASK 추가</button>
+          </div>
+          <div class="task-admin-list" id="admin-tasks-container">
+            <!-- Dynamic task admin items -->
+          </div>
+        </div>
+
+        <!-- TAB 2: HOLIDAYS & WORKING DAYS -->
+        <div class="tab-content" data-tab="holidays" style="display: none;">
+          <div style="background:var(--bg-subtle); padding:12px 14px; border-radius:8px; margin-bottom:16px; border:1px solid var(--border-color); font-size:0.82rem; line-height:1.5;">
+            <strong>ℹ️ 워킹데이(영업일) 계산 규칙:</strong><br>
+            • 모든 <strong>토요일 및 일요일</strong>은 자동으로 제외됩니다.<br>
+            • 대한민국 법정 공휴일 및 대체공휴일(2024~2028년)이 기본 탑재되어 자동 제외됩니다.<br>
+            • 회사 창립기념일, 전사 유급휴무, 샌드위치 휴무 등은 아래에서 자유롭게 추가/삭제할 수 있습니다.
+          </div>
+
+          <h3 style="font-size:0.95rem; margin-bottom:10px;">사용자 지정 휴일 추가</h3>
+          <form id="holiday-form" style="display:flex; gap:10px; margin-bottom:16px;">
+            <input type="date" id="holiday-date" class="form-input" style="flex:1;" required>
+            <input type="text" id="holiday-name" class="form-input" placeholder="휴일명 (예: 창립기념일)" style="flex:2;" required>
+            <button type="submit" class="btn btn-primary" style="white-space:nowrap;">추가</button>
+          </form>
+
+          <h3 style="font-size:0.95rem; margin-bottom:8px;">등록된 사용자 지정 휴일</h3>
+          <div class="holiday-list" id="custom-holidays-list">
+            <!-- Custom holidays list -->
+          </div>
+        </div>
+
+        <!-- TAB 3: SETTINGS -->
+        <div class="tab-content" data-tab="settings" style="display: none;">
+          <form id="settings-form">
+            <div class="form-group">
+              <label class="form-label">상황판 타이틀</label>
+              <input type="text" id="set-board-title" class="form-input" value="계약서버개발실">
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">하루 기준 근무시간 (시간)</label>
+                <input type="number" id="set-work-hours" class="form-input" value="8" min="1" max="24" required>
+                <span style="font-size:0.75rem; color:var(--text-subtle);">하단 잔여시간 계산의 기준 (기본 8시간)</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label">업무 시작 시간</label>
+                <input type="time" id="set-start-time" class="form-input" value="09:00" required>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label class="form-label">업무 종료 시간</label>
+                <input type="time" id="set-end-time" class="form-input" value="18:00" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">점심시간 (시작 ~ 종료)</label>
+                <div style="display:flex; gap:6px;">
+                  <input type="time" id="set-lunch-start" class="form-input" value="12:00">
+                  <input type="time" id="set-lunch-end" class="form-input" value="13:00">
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-color);">
+              <button type="button" class="btn" id="btn-reset-data" style="color:#ef4444;">
+                🔄 샘플 데이터 6개로 복원
+              </button>
+              <button type="submit" class="btn btn-primary">설정 저장</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn modal-close-trigger">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK ADD / EDIT MODAL -->
+  <div class="modal-backdrop" id="task-edit-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 id="task-edit-title">TASK 등록 / 수정</h2>
+        <button class="modal-close-btn modal-close-trigger">&times;</button>
+      </div>
+      <form id="task-form">
+        <div class="modal-body">
+          <input type="hidden" id="task-id">
+
+          <div class="form-group">
+            <label class="form-label">태스크명 *</label>
+            <input type="text" id="task-name" class="form-input" placeholder="예: 차세대 결제 PG사 연동 검증" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">오픈 목표 일시 (오픈일자) *</label>
+            <input type="datetime-local" id="task-target" class="form-input" required>
+            <span style="font-size:0.75rem; color:var(--text-subtle);">워킹데이(주말·공휴일 제외) D-Day 산출 기준</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">TASK 업무시간 (현재시간 포함 시 실시간 카운트다운)</label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+              <div>
+                <span style="font-size:0.75rem; color:var(--text-subtle); display:block; margin-bottom:4px;">업무 시작 시간</span>
+                <input type="time" id="task-work-start" class="form-input" value="09:00" required>
+              </div>
+              <div>
+                <span style="font-size:0.75rem; color:var(--text-subtle); display:block; margin-bottom:4px;">업무 종료 시간</span>
+                <input type="time" id="task-work-end" class="form-input" value="18:00" required>
+              </div>
+            </div>
+            <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+              <button type="button" class="btn" onclick="Admin.setWorkTimePreset('09:00','18:00')" style="font-size:0.75rem; padding:4px 8px;">09:00 ~ 18:00 (기본)</button>
+              <button type="button" class="btn" onclick="Admin.setWorkTimePreset('10:00','19:00')" style="font-size:0.75rem; padding:4px 8px;">10:00 ~ 19:00 (10~7시)</button>
+              <button type="button" class="btn" onclick="Admin.setWorkTimePreset('10:00','18:00')" style="font-size:0.75rem; padding:4px 8px;">10:00 ~ 18:00</button>
+              <button type="button" class="btn" onclick="Admin.setWorkTimePreset('00:00','23:59')" style="font-size:0.75rem; padding:4px 8px; color:var(--accent-green);">24시간 상시 (야간 테스트)</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn modal-close-trigger">취소</button>
+          <button type="submit" class="btn btn-primary">저장하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT FILES -->
+  <script src="js/calendar.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

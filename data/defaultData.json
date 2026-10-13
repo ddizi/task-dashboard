@@ -1,0 +1,69 @@
+{
+  "tasks": [
+    {
+      "id": "task-1",
+      "title": "AI 고객 상담 챗봇 파일럿 서비스 오픈",
+      "targetDate": "2026-10-16T10:00",
+      "workStartTime": "00:00",
+      "workEndTime": "23:59",
+      "order": 1
+    },
+    {
+      "id": "task-2",
+      "title": "글로벌 결제 PG 연동 및 보안 적합성 검증",
+      "targetDate": "2026-10-23T18:00",
+      "workStartTime": "10:00",
+      "workEndTime": "19:00",
+      "order": 2
+    },
+    {
+      "id": "task-3",
+      "title": "모바일 앱 3.0 대규모 UI 개편 배포",
+      "targetDate": "2026-10-30T09:00",
+      "workStartTime": "09:00",
+      "workEndTime": "18:00",
+      "order": 3
+    },
+    {
+      "id": "task-4",
+      "title": "차세대 클라우드 DB 무중단 마이그레이션",
+      "targetDate": "2026-11-06T14:00",
+      "workStartTime": "09:00",
+      "workEndTime": "18:00",
+      "order": 4
+    },
+    {
+      "id": "task-5",
+      "title": "2026 ISMS-P 정보보호 관리체계 사후 심사",
+      "targetDate": "2026-11-17T09:00",
+      "workStartTime": "10:00",
+      "workEndTime": "19:00",
+      "order": 5
+    },
+    {
+      "id": "task-6",
+      "title": "블랙프라이데이 & 연말 프로모션 티저 오픈",
+      "targetDate": "2026-11-27T10:00",
+      "workStartTime": "09:00",
+      "workEndTime": "18:00",
+      "order": 6
+    }
+  ],
+  "customHolidays": [
+    {
+      "date": "2026-11-02",
+      "name": "회사 창립기념일 (유급휴무)"
+    }
+  ],
+  "settings": {
+    "workHoursPerDay": 8,
+    "workStartTime": "09:00",
+    "workEndTime": "18:00",
+    "lunchStartTime": "12:00",
+    "lunchEndTime": "13:00",
+    "boardTitle": "계약서버개발실",
+    "boardSubtitle": "CONTRACT SERVER DEV OPERATIONS BOARD",
+    "maxDisplayTasks": 6,
+    "theme": "dark"
+  }
+}
